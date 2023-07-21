@@ -26,7 +26,7 @@ class LandingScreen extends StatelessWidget {
               fontSize: 30,
             ),
           ),
-          SizedBox(height: 100),
+          const SizedBox(height: 100),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 50),
             child: Row(
