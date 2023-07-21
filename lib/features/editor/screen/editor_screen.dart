@@ -40,14 +40,6 @@ class _EditorScreenState extends State<EditorScreen> {
               title: const Text("Image Editor"),
               actions: [
                 IconButton(
-                  onPressed: () => editorProvider.editorController.undo(),
-                  icon: const Icon(Icons.undo),
-                ),
-                IconButton(
-                  onPressed: () => editorProvider.editorController.redo(),
-                  icon: const Icon(Icons.redo),
-                ),
-                IconButton(
                   onPressed: () =>
                       editorProvider.editorController.saveEditing(),
                   icon: const Icon(Icons.done_all),
@@ -144,9 +136,13 @@ class _EditorScreenState extends State<EditorScreen> {
                         }
                       }),
                   BottomNavigationItem(
-                      title: "Background",
+                      title: "Bg Color",
                       icon: Icons.color_lens,
                       onPressed: () => editorProvider.addBg(context: context)),
+                  BottomNavigationItem(
+                      title: "Bg Image",
+                      icon: Icons.image_outlined,
+                      onPressed: () => editorProvider.addImage(context)),
                   BottomNavigationItem(
                       title: "Add Text",
                       icon: Icons.text_fields,

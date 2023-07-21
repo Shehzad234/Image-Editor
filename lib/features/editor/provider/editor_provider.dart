@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_editor/common/colors.dart';
 import 'package:image_editor/features/editor/res/colors.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class EditorProvider extends ChangeNotifier {
   late EasyImageEditorController editorController;
   bool isCropedflag = false;
   String? image;
+  ImagePicker imagePicker = ImagePicker();
 
   isCropFlagChanger() {
     isCropedflag = !isCropedflag;
@@ -165,5 +167,36 @@ class EditorProvider extends ChangeNotifier {
         });
   }
 
-  afterCropping() {}
+  addImage(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              InkWell(
+                onTap: () async {
+                  final XFile? image =
+                      await imagePicker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    // ignore: use_build_context_synchronously
+                    Navigator.pop(context);
+                    editorController.addBackgroundView(Image.file(
+                      File(image.path),
+                      fit: BoxFit.fill,
+                    ));
+                  }
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    "Set Background Image",
+                    style: TextStyle(fontSize: 18.0, color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
 }
