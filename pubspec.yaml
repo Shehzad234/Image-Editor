@@ -46,6 +46,9 @@ dependencies:
   provider: ^6.0.5
   flutter_flushbar: ^0.0.2
   flutter_image_filters: ^0.0.6
+  open_file_plus: ^3.3.0
+  share_plus: ^7.0.2
+  gallery_saver: ^2.3.2
 
 dev_dependencies:
   flutter_test:

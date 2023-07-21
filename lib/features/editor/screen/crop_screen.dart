@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_editor/features/editor/provider/editor_provider.dart';
 import '../../../common/colors.dart';
 import 'editor_screen.dart';
@@ -70,51 +71,58 @@ Widget cropWidget(
     aspectRatio: 1,
     defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
   );
-  return Center(
-    child: SizedBox(
-      height: editorProvider.isCropedflag ? 500 : 0,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CropImage(
+  return SizedBox(
+    height: editorProvider.isCropedflag ? 800 : 0,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 500,
+          child: CropImage(
             controller: controller,
             image: Image.file(File(imagePath)),
             paddingSize: 25.0,
             alwaysMove: true,
           ),
-          Container(
-            width: double.infinity,
-            height: 50,
-            color: AppColor.bottomNavigationColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+        ),
+        Container(
+          width: double.infinity,
+          height: 50,
+          color: AppColor.bottomNavigationColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: AppColor.fgColor),
+                child: Text(
+                  "Cancel",
+                  style: GoogleFonts.montserratAlternates(),
+                ),
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    Image image = await controller.croppedImage();
+                    Future.delayed(const Duration(milliseconds: 500))
+                        .then((value) {
+                      editorProvider.editorController.undo();
+                      editorProvider.editorController
+                          .addView(Image(image: image.image));
+                    });
+
+                    editorProvider.isCropFlagChanger();
+                  },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.fgColor),
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      Image image = await controller.croppedImage();
-                      Future.delayed(const Duration(milliseconds: 500))
-                          .then((value) {
-                        editorProvider.editorController.undo();
-                        editorProvider.editorController
-                            .addView(Image(image: image.image));
-                      });
-
-                      editorProvider.isCropFlagChanger();
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.fgColor),
-                    child: const Text("Done")),
-              ],
-            ),
+                  child: Text(
+                    "Done",
+                    style: GoogleFonts.montserratAlternates(),
+                  )),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }

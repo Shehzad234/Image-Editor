@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:easy_image_editor/easy_image_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_editor/common/colors.dart';
 import 'package:image_editor/features/editor/res/colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../../common/loading_popup.dart';
 
 class EditorProvider extends ChangeNotifier {
   late EasyImageEditorController editorController;
@@ -20,12 +21,17 @@ class EditorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveImage(Uint8List imageBytes) async {
+  Future<String?> saveImage(context) async {
+    loadingPopup(context);
+
+    final imageBytes = await editorController.saveEditing();
     final directory = await getExternalStorageDirectory();
     final imagePath = '${directory!.path}/my_image.png';
     log(imagePath);
     final imageFile = File(imagePath);
-    await imageFile.writeAsBytes(imageBytes);
+    await imageFile.writeAsBytes(imageBytes!);
+    Navigator.of(context).pop();
+    return imagePath;
   }
 
   assignPathToImage(String path) {
@@ -42,7 +48,7 @@ class EditorProvider extends ChangeNotifier {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, stateSetter) {
             return Container(
-              color: const Color.fromARGB(215, 161, 144, 144),
+              color: const Color.fromARGB(213, 201, 195, 195),
               child: Column(
                 children: [
                   Padding(
@@ -52,7 +58,7 @@ class EditorProvider extends ChangeNotifier {
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
-                        fillColor: Colors.white10,
+                        fillColor: Colors.black26,
                         filled: true,
                         border: OutlineInputBorder(
                             borderSide:

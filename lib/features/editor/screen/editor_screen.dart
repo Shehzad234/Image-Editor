@@ -3,7 +3,10 @@ import 'dart:io';
 
 import 'package:easy_image_editor/easy_image_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_editor/common/loading_popup.dart';
 import 'package:image_editor/features/editor/provider/editor_provider.dart';
+import 'package:image_editor/features/image_saver/screen/image_save_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:image_editor/features/editor/screen/crop_screen.dart';
@@ -25,10 +28,29 @@ class EditorScreen extends StatefulWidget {
 class _EditorScreenState extends State<EditorScreen> {
   int? currentWidgetIndex;
   String imagePath = "";
+  bool? flag;
+  @override
+  void initState() {
+    flag = true;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     EditorProvider editorProvider = Provider.of<EditorProvider>(context);
-
+    if (flag != null) {
+      log("triggered");
+      Future.delayed(const Duration(milliseconds: 200))
+          .then((value) => loadingPopup(context));
+      Future.delayed(const Duration(seconds: 2)).then((value) {
+        final temp = ModalRoute.of(context)!.settings.arguments as File;
+        imagePath = temp.path;
+        editorProvider.editorController
+            .addView(Center(child: Image.file(temp)));
+        Navigator.of(context).pop();
+      });
+      flag = null;
+    }
     return Scaffold(
       backgroundColor: AppColor.bgColor,
       appBar: editorProvider.isCropedflag
@@ -37,7 +59,10 @@ class _EditorScreenState extends State<EditorScreen> {
             )
           : AppBar(
               backgroundColor: Colors.transparent,
-              title: const Text("Image Editor"),
+              title: Text(
+                "Image Editor",
+                style: GoogleFonts.montserratAlternates(),
+              ),
               actions: [
                 IconButton(
                   onPressed: () =>
@@ -121,7 +146,12 @@ class _EditorScreenState extends State<EditorScreen> {
                           editorProvider.editorController
                               .rotateView(currentWidgetIndex ?? 0, -90);
                         } catch (e) {
-                          log(e.toString());
+                          try {
+                            editorProvider.editorController
+                                .rotateView(currentWidgetIndex ?? 1, -90);
+                          } catch (e) {
+                            log(e.toString());
+                          }
                         }
                       }),
                   BottomNavigationItem(
@@ -133,6 +163,13 @@ class _EditorScreenState extends State<EditorScreen> {
                               .rotateView(currentWidgetIndex ?? 0, 90);
                         } catch (e) {
                           log(e.toString());
+
+                          try {
+                            editorProvider.editorController
+                                .rotateView(currentWidgetIndex ?? 1, -90);
+                          } catch (e) {
+                            log(e.toString());
+                          }
                         }
                       }),
                   BottomNavigationItem(
@@ -157,14 +194,11 @@ class _EditorScreenState extends State<EditorScreen> {
                   BottomNavigationItem(
                       title: "Save",
                       icon: Icons.save,
-                      onPressed: () {
-                        editorProvider.editorController
-                            .saveEditing()
-                            .then((value) {
-                          if (value != null) {
-                            log("Move to Next Page");
-                            editorProvider.saveImage(value);
-                          }
+                      onPressed: () async {
+                        await editorProvider.saveImage(context).then((value) {
+                          log(value.toString());
+                          Navigator.of(context)
+                              .pushNamed(SaveScreen.path, arguments: value!);
                         });
                       }),
                 ],

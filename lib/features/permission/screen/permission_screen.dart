@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_editor/features/editor/screen/editor_screen.dart';
+import 'package:image_editor/features/landing/screen/landing_screen.dart';
 
 class PermissionScreen extends StatelessWidget {
   const PermissionScreen({super.key});
@@ -44,7 +45,7 @@ class PermissionScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () =>
-                    Navigator.of(context).pushNamed(EditorScreen.path),
+                    Navigator.of(context).pushNamed(LandingScreen.path),
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size(200, 60),
                     shape: RoundedRectangleBorder(
