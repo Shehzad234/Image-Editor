@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_editor/features/editor/screen/editor_screen.dart';
-import 'package:image_editor/features/landing/screen/landing_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/permission_provider.dart';
 
 class PermissionScreen extends StatelessWidget {
   const PermissionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    PermissionProvider permissionProvider =
+        Provider.of<PermissionProvider>(context);
+    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -21,10 +25,10 @@ class PermissionScreen extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  const CircleAvatar(
-                    maxRadius: 100,
-                    minRadius: 100,
-                    backgroundImage: AssetImage("assets/icon/icon.png"),
+                  CircleAvatar(
+                    maxRadius: screenSize.height * 0.1,
+                    minRadius: screenSize.height * 0.1,
+                    backgroundImage: const AssetImage("assets/icon/icon.png"),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -45,7 +49,7 @@ class PermissionScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () =>
-                    Navigator.of(context).pushNamed(LandingScreen.path),
+                    permissionProvider.allowPermission(context: context),
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size(200, 60),
                     shape: RoundedRectangleBorder(
@@ -58,7 +62,6 @@ class PermissionScreen extends StatelessWidget {
               )
             ],
           ),
-        ),
-        drawer: const Drawer());
+        ));
   }
 }

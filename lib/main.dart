@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:image_editor/common/consts.dart';
+import 'package:image_editor/features/about/provider/about_provider.dart';
 import 'package:image_editor/features/image_saver/provider/image_saver_provider.dart';
-import 'package:image_editor/features/permission/screen/permission_screen.dart';
+import 'package:image_editor/features/permission/provider/permission_provider.dart';
+import 'package:image_editor/features/splash/screen/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'features/editor/provider/editor_provider.dart';
@@ -18,6 +20,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => EditorProvider()),
         ChangeNotifierProvider(create: (context) => ImageSaverProvider()),
+        ChangeNotifierProvider(create: (context) => PermissionProvider()),
+        ChangeNotifierProvider(create: (context) => AboutProvider()),
       ],
       child: MaterialApp(
         routes: AppConsts.routes,
@@ -26,7 +30,7 @@ class MyApp extends StatelessWidget {
             textTheme:
                 const TextTheme(bodyMedium: TextStyle(color: Colors.white))),
         title: 'Image Editor',
-        home: const PermissionScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

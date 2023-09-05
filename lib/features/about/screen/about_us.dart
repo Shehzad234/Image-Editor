@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_editor/features/about/provider/about_provider.dart';
+import 'package:provider/provider.dart';
 
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AboutProvider aboutProvider = Provider.of<AboutProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: const Color.fromRGBO(255, 27, 80, 1),
-        title: Padding(
-          padding: const EdgeInsets.only(left: 60.0),
-          child: Text(
-            "About",
-            style: GoogleFonts.montserratAlternates(fontSize: 30),
-          ),
+        title: Text(
+          "About Us",
+          style: GoogleFonts.montserratAlternates(),
         ),
       ),
       body: Column(
@@ -38,6 +39,7 @@ class AboutUs extends StatelessWidget {
           ),
           Card(
             child: ListTile(
+              onTap: () => aboutProvider.fbpage(),
               title: Text(
                 "Facebook Page",
                 style: GoogleFonts.montserratAlternates(),
@@ -54,6 +56,7 @@ class AboutUs extends StatelessWidget {
           ),
           Card(
             child: ListTile(
+              onTap: () => aboutProvider.contactUs(),
               title: Text(
                 "Contact us",
                 style: GoogleFonts.montserratAlternates(),

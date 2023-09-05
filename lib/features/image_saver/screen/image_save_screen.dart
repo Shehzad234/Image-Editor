@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_editor/features/image_saver/provider/image_saver_provider.dart';
 
 import 'package:flutter/material.dart';
@@ -23,9 +24,10 @@ class SaveScreen extends StatelessWidget {
           elevation: 0.1,
           backgroundColor: Colors.transparent,
           centerTitle: true,
-          title: const Text("Sucessfully Saved")),
+          title: Text("Sucessfully Saved",
+              style: GoogleFonts.montserratAlternates())),
       body: Container(
-          margin: const EdgeInsets.only(top: 80),
+          margin: EdgeInsets.only(top: screenSize.height * 0.1),
           alignment: Alignment.center,
           child: Column(
             children: [

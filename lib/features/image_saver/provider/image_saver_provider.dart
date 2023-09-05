@@ -16,8 +16,7 @@ class ImageSaverProvider extends ChangeNotifier {
 
     await GallerySaver.saveImage(imagePath)
         .then((value) => Navigator.pop(context));
-    showMessage(
-        message: "Sucessfully Saved", context: context, color: Colors.green);
+    showMessage(message: "Sucessfully Saved", color: Colors.green);
     // savedAnimationFlagChanger();
     notifyListeners();
   }

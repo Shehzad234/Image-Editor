@@ -5,15 +5,14 @@ import 'package:easy_image_editor/easy_image_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_editor/common/loading_popup.dart';
+import 'package:image_editor/common/widget/my_drawer.dart';
 import 'package:image_editor/features/editor/provider/editor_provider.dart';
-import 'package:image_editor/features/image_saver/screen/image_save_screen.dart';
-import 'package:image_picker/image_picker.dart';
-
+import 'package:image_editor/features/editor/screen/filter_screen.dart';
+import 'package:image_editor/features/editor/widget/app_bottom_navigation_bar.dart';
 import 'package:image_editor/features/editor/screen/crop_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/colors.dart';
-import '../widget/bottom_navigation_items.dart';
 
 class EditorScreen extends StatefulWidget {
   static const path = "/editor-screen";
@@ -27,8 +26,8 @@ class EditorScreen extends StatefulWidget {
 
 class _EditorScreenState extends State<EditorScreen> {
   int? currentWidgetIndex;
-  String imagePath = "";
   bool? flag;
+  Widget? image;
   @override
   void initState() {
     flag = true;
@@ -44,166 +43,115 @@ class _EditorScreenState extends State<EditorScreen> {
           .then((value) => loadingPopup(context));
       Future.delayed(const Duration(seconds: 2)).then((value) {
         final temp = ModalRoute.of(context)!.settings.arguments as File;
-        imagePath = temp.path;
-        editorProvider.editorController
-            .addView(Center(child: Image.file(temp)));
+        editorProvider.assignPathToImage(temp.path);
+        editorProvider.editorController.addView(Image.file(temp));
+        Future.delayed(const Duration(milliseconds: 200))
+            .then((value) => editorProvider.editorController.hideViewControl());
         Navigator.of(context).pop();
       });
       flag = null;
     }
-    return Scaffold(
-      backgroundColor: AppColor.bgColor,
-      appBar: editorProvider.isCropedflag
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-            )
-          : AppBar(
-              backgroundColor: Colors.transparent,
-              title: Text(
-                "Image Editor",
-                style: GoogleFonts.montserratAlternates(),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () =>
-                      editorProvider.editorController.saveEditing(),
-                  icon: const Icon(Icons.done_all),
-                ),
-              ],
-            ),
-      body: InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        splashFactory: NoSplash.splashFactory,
-        onTap: () => editorProvider.editorController.hideViewControl(),
-        child: Stack(children: [
-          editorProvider.isCropedflag
-              ? cropWidget(
-                  context: context,
-                  imagePath: imagePath,
-                  editorProvider: editorProvider)
-              : const SizedBox(),
-          Center(
-            child: SizedBox(
-              height: editorProvider.isCropedflag ? 0 : 550,
-              width: double.infinity,
-              child: EditorView(
-                clickToFocusAndMove: false,
-                onClick: (p0, p1, p2) {
-                  currentWidgetIndex = p0;
-                  log(currentWidgetIndex.toString());
-                },
-                onViewTouch: (p0, p1, p2) {
-                  currentWidgetIndex = p0;
-                  log(currentWidgetIndex.toString());
-                },
-                onInitialize: (controller) {
-                  setState(() {
-                    editorProvider.editorController = controller;
-                  });
-                },
-              ),
-            ),
-          ),
-        ]),
-      ),
-      bottomNavigationBar: editorProvider.isCropedflag
-          ? const SizedBox()
-          : Container(
-              width: double.infinity,
-              height: 80,
-              color: AppColor.bottomNavigationColor,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  BottomNavigationItem(
-                      title: "Add Image",
-                      icon: Icons.add_photo_alternate_outlined,
-                      onPressed: () async {
-                        // ignore: invalid_use_of_visible_for_testing_member
-                        final pickimage = await ImagePicker.platform
-                            .getImage(source: ImageSource.gallery) as XFile;
-                        imagePath = pickimage.path;
-                        editorProvider.assignPathToImage(pickimage.path);
-                        editorProvider.editorController.addView(
-                            Image.file(
-                              File(editorProvider.image!),
-                            ),
-                            widgetType: "image");
-                        Future.delayed(const Duration(milliseconds: 250)).then(
-                            (value) =>
-                                editorProvider.editorController.saveEditing());
-                      }),
-                  BottomNavigationItem(
-                      title: "Crop",
-                      icon: Icons.crop,
-                      onPressed: () => editorProvider.isCropFlagChanger()),
-                  BottomNavigationItem(
-                      title: "Left",
-                      icon: Icons.rotate_left_outlined,
-                      onPressed: () {
-                        try {
-                          editorProvider.editorController
-                              .rotateView(currentWidgetIndex ?? 0, -90);
-                        } catch (e) {
-                          try {
-                            editorProvider.editorController
-                                .rotateView(currentWidgetIndex ?? 1, -90);
-                          } catch (e) {
-                            log(e.toString());
-                          }
-                        }
-                      }),
-                  BottomNavigationItem(
-                      title: "Rigth",
-                      icon: Icons.rotate_right_outlined,
-                      onPressed: () {
-                        try {
-                          editorProvider.editorController
-                              .rotateView(currentWidgetIndex ?? 0, 90);
-                        } catch (e) {
-                          log(e.toString());
+    return WillPopScope(
+      onWillPop: () async {
+        if (editorProvider.isCropedflag || editorProvider.isFliterFlag) {
+          editorProvider.isFilterFlagChanger();
 
-                          try {
-                            editorProvider.editorController
-                                .rotateView(currentWidgetIndex ?? 1, -90);
-                          } catch (e) {
-                            log(e.toString());
-                          }
-                        }
-                      }),
-                  BottomNavigationItem(
-                      title: "Bg Color",
-                      icon: Icons.color_lens,
-                      onPressed: () => editorProvider.addBg(context: context)),
-                  BottomNavigationItem(
-                      title: "Bg Image",
-                      icon: Icons.image_outlined,
-                      onPressed: () => editorProvider.addImage(context)),
-                  BottomNavigationItem(
-                      title: "Add Text",
-                      icon: Icons.text_fields,
-                      onPressed: () =>
-                          editorProvider.addText(null, null, context)),
-                  BottomNavigationItem(
-                      title: "Filters",
-                      icon: Icons.filter,
-                      onPressed: () {
-                        // Add filters
-                      }),
-                  BottomNavigationItem(
-                      title: "Save",
-                      icon: Icons.save,
-                      onPressed: () async {
-                        await editorProvider.saveImage(context).then((value) {
-                          log(value.toString());
-                          Navigator.of(context)
-                              .pushNamed(SaveScreen.path, arguments: value!);
-                        });
-                      }),
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.bgColor,
+        appBar: editorProvider.isFliterFlag
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                    onPressed: () {
+                      editorProvider.isFilterFlagChanger();
+                    },
+                    icon: const Icon(Icons.arrow_back)),
+                actions: [
+                  IconButton(
+                      onPressed: () => editorProvider.doneFilter(
+                          image ?? const SizedBox(), context),
+                      icon: const Icon(Icons.done))
                 ],
+              )
+            : editorProvider.isCropedflag
+                ? AppBar(
+                    backgroundColor: Colors.transparent,
+                  )
+                : AppBar(
+                    backgroundColor: Colors.transparent,
+                    title: Text(
+                      "Image Editor",
+                      style: GoogleFonts.montserratAlternates(),
+                    ),
+                    actions: [
+                      IconButton(
+                        onPressed: () =>
+                            editorProvider.editorController.saveEditing(),
+                        icon: const Icon(Icons.done),
+                      ),
+                    ],
+                  ),
+        body: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+          onTap: () => editorProvider.editorController.hideViewControl(),
+          child: Stack(children: [
+            editorProvider.isCropedflag
+                ? cropWidget(context: context, editorProvider: editorProvider)
+                : const SizedBox(),
+            Center(
+              child: SizedBox(
+                height:
+                    editorProvider.isCropedflag || editorProvider.isFliterFlag
+                        ? 0
+                        : 550,
+                width: double.infinity,
+                child: EditorView(
+                  clickToFocusAndMove: false,
+                  onClick: (p0, p1, p2) {
+                    currentWidgetIndex = p0;
+                    image = p1;
+                    setState(() {});
+                    log(currentWidgetIndex.toString());
+                  },
+                  onViewTouch: (p0, p1, p2) {
+                    currentWidgetIndex = p0;
+                    image = p1;
+                    setState(() {});
+                    log(currentWidgetIndex.toString());
+                  },
+                  onInitialize: (controller) {
+                    setState(() {
+                      editorProvider.editorController = controller;
+                    });
+                  },
+                ),
               ),
             ),
+            if (editorProvider.isFliterFlag && image != null) ...{
+              filterWidget(
+                  context: context,
+                  image: image!,
+                  editorProvider: editorProvider)
+            }
+          ]),
+        ),
+        bottomNavigationBar: editorProvider.isFliterFlag
+            ? const SizedBox()
+            : editorProvider.isCropedflag
+                ? const SizedBox()
+                : appBottomNavigationBar(
+                    image: image,
+                    context: context,
+                    editorProvider: editorProvider,
+                    currentWidgetIndex: currentWidgetIndex),
+        drawer: const AppDrawer(),
+      ),
     );
   }
 }

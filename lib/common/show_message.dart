@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_flushbar/flutter_flushbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-showMessage(
-    {required String message,
-    required BuildContext context,
-    required Color color}) {
-  Flushbar(
-    flushbarPosition: FlushbarPosition.BOTTOM,
-    backgroundColor: color,
-    duration: const Duration(seconds: 2),
-    messageText: Text(
-      message,
-      style: const TextStyle(
-          fontSize: 16.0,
-          color: Colors.white,
-          fontFamily: "ShadowsIntoLightTwo"),
-    ),
-  ).show(context);
+showMessage({required String message, required Color color}) {
+  return Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: color,
+      textColor: Colors.white,
+      fontSize: 16.0);
 }

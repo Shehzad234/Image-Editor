@@ -9,24 +9,50 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../common/loading_popup.dart';
+import '../utils/filters.dart';
 
 class EditorProvider extends ChangeNotifier {
   late EasyImageEditorController editorController;
   bool isCropedflag = false;
+  bool isFliterFlag = false;
+  int fliterIndex = 0;
   String? image;
   ImagePicker imagePicker = ImagePicker();
+  String currentImagePath = "";
+
+  filterIndexChanger(int index) {
+    fliterIndex = index;
+    notifyListeners();
+  }
 
   isCropFlagChanger() {
     isCropedflag = !isCropedflag;
     notifyListeners();
   }
 
-  Future<String?> saveImage(context) async {
-    loadingPopup(context);
+  isFilterFlagChanger() {
+    isFliterFlag = !isFliterFlag;
+    notifyListeners();
+  }
 
+  doneFilter(Widget image, BuildContext context) {
+    isFilterFlagChanger();
+
+    Future.delayed(const Duration(milliseconds: 250)).then((value) {
+      editorController.undo();
+      editorController.addView(ColorFiltered(
+        colorFilter: listOfFilters[fliterIndex],
+        child: image,
+      ));
+    });
+  }
+
+  Future<String?> saveImage(BuildContext context) async {
+    loadingPopup(context);
     final imageBytes = await editorController.saveEditing();
     final directory = await getExternalStorageDirectory();
-    final imagePath = '${directory!.path}/my_image.png';
+    final name = DateTime.now().microsecond.toString();
+    final imagePath = '${directory!.path}/$name.png';
     log(imagePath);
     final imageFile = File(imagePath);
     await imageFile.writeAsBytes(imageBytes!);
@@ -36,6 +62,11 @@ class EditorProvider extends ChangeNotifier {
 
   assignPathToImage(String path) {
     image = path;
+    notifyListeners();
+  }
+
+  currentImagePathSetter(String image) {
+    currentImagePath = image;
     notifyListeners();
   }
 
@@ -187,6 +218,7 @@ class EditorProvider extends ChangeNotifier {
                   if (image != null) {
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context);
+                    currentImagePath = image.path;
                     editorController.addBackgroundView(Image.file(
                       File(image.path),
                       fit: BoxFit.fill,
